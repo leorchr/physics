@@ -44,12 +44,13 @@ private:
 	void MouseMoved( float x, float y );
 	void MouseScrolled( float z );
 	void Keyboard( int key, int scancode, int action, int modifiers );
+	void MouseButton(int button, int action, int mods);
 
 	static void OnWindowResized( GLFWwindow * window, int width, int height );
 	static void OnMouseMoved( GLFWwindow * window, double x, double y );
 	static void OnMouseWheelScrolled( GLFWwindow * window, double x, double y );
 	static void OnKeyboard( GLFWwindow * window, int key, int scancode, int action, int modifiers );
-
+	static void OnMouseButtonPressed(GLFWwindow* window, int button, int action, int mods);
 private:
 	class Scene * scene;
 

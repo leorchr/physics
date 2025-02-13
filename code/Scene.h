@@ -18,8 +18,12 @@ public:
 
 	void Reset();
 	void Initialize();
-	void Update( const float dt_sec );	
+	void Update( const float dt_sec );
+	bool EndUpdate();
+	
+	void SpawnBall();
 
 	std::vector<Body> bodies;
+	std::vector<Body> nextSpawnBodies;
 };
 

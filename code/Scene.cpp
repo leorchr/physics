@@ -124,3 +124,35 @@ void Scene::Update(const float dt_sec)
 		}
 	}
 }
+
+bool Scene::EndUpdate()
+{
+	if (!std::empty(nextSpawnBodies))
+	{
+		std::vector<Body> bodiesToMove;
+		for (auto body : nextSpawnBodies)
+		{
+			bodiesToMove.push_back(body);
+		}
+
+		// Remove all bodies from nextSpawnBodies and add them to bodies
+		nextSpawnBodies.clear();
+		bodies.insert(bodies.end(), bodiesToMove.begin(), bodiesToMove.end());
+		return true;
+	}
+	return false;
+}
+
+void Scene::SpawnBall()
+{
+	Body body;
+	float radius = 0.5f;
+	body.position = Vec3(0, 0, 10);
+	body.orientation = Quat(0, 0, 0, 1);
+	body.shape = new ShapeSphere(radius);
+	body.inverseMass = 1.0f;
+	body.elasticity = 0.5f;
+	body.friction = 0.5f;
+	body.linearVelocity.Zero();
+	nextSpawnBodies.push_back(body);
+}

@@ -124,6 +124,7 @@ void Application::InitializeGLFW() {
 	glfwSetCursorPosCallback( glfwWindow, Application::OnMouseMoved );
 	glfwSetScrollCallback( glfwWindow, Application::OnMouseWheelScrolled );
 	glfwSetKeyCallback( glfwWindow, Application::OnKeyboard );
+	glfwSetMouseButtonCallback(glfwWindow, Application::OnMouseButtonPressed);
 }
 
 /*
@@ -412,21 +413,25 @@ void Application::MouseScrolled( float z ) {
 	}
 }
 
-/*
-====================================================
-Application::OnKeyboard
-====================================================
-*/
 void Application::OnKeyboard( GLFWwindow * window, int key, int scancode, int action, int modifiers ) {
 	Application * application = reinterpret_cast< Application * >( glfwGetWindowUserPointer( window ) );
 	application->Keyboard( key, scancode, action, modifiers );
 }
 
-/*
-====================================================
-Application::Keyboard
-====================================================
-*/
+void Application::OnMouseButtonPressed(GLFWwindow* window, int button, int action, int mods)
+{
+	Application * application = reinterpret_cast< Application * >( glfwGetWindowUserPointer( window ) );
+	application->MouseButton( button, action, mods );
+}
+
+void Application::MouseButton(int button, int action, int mods)
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
+		scene->SpawnBall();
+	}
+}
+
 void Application::Keyboard( int key, int scancode, int action, int modifiers ) {
 	if ( GLFW_KEY_R == key && GLFW_RELEASE == action ) {
 		scene->Reset();
@@ -439,11 +444,6 @@ void Application::Keyboard( int key, int scancode, int action, int modifiers ) {
 	}
 }
 
-/*
-====================================================
-Application::MainLoop
-====================================================
-*/
 void Application::MainLoop() {
 	static int timeLastFrame = 0;
 	static int numSamples = 0;
@@ -507,6 +507,18 @@ void Application::MainLoop() {
 
 		// Draw the Scene
 		DrawFrame();
+
+		if(scene->EndUpdate())
+		{
+			m_models.reserve( scene->bodies.size() );
+			for ( int i = 0; i < scene->bodies.size(); i++ ) {
+				Model * model = new Model();
+				model->BuildFromShape( scene->bodies[ i ].shape );
+				model->MakeVBO( &deviceContext );
+
+				m_models.push_back( model );
+			}
+		}
 	}
 }
 
