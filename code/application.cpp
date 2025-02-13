@@ -88,7 +88,7 @@ void Application::Initialize() {
 	m_mousePosition = Vec2( 0, 0 );
 	m_cameraPositionTheta = acosf( -1.0f ) / 2.0f;
 	m_cameraPositionPhi = 0;
-	m_cameraRadius = 15.0f;
+	m_cameraRadius = 30.0f;
 	m_cameraFocusPoint = Vec3( 0, 0, 3 );
 
 	m_isPaused = true;
@@ -380,8 +380,8 @@ void Application::MouseMoved( float x, float y ) {
 	m_mousePosition = newPosition;
 
 	float sensitivity = 0.01f;
-	m_cameraPositionTheta += ds.y * sensitivity;
-	m_cameraPositionPhi += ds.x * sensitivity;
+	m_cameraPositionTheta += ds.y * -sensitivity;
+	m_cameraPositionPhi += ds.x * -sensitivity;
 
 	if ( m_cameraPositionTheta < 0.14f ) {
 		m_cameraPositionTheta = 0.14f;
@@ -428,7 +428,7 @@ void Application::MouseButton(int button, int action, int mods)
 {
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
-		scene->SpawnBall();
+		scene->SpawnBall(m_camPos, m_cameraFocusPoint);
 	}
 }
 
@@ -510,6 +510,7 @@ void Application::MainLoop() {
 
 		if(scene->EndUpdate())
 		{
+			m_models.clear();
 			m_models.reserve( scene->bodies.size() );
 			for ( int i = 0; i < scene->bodies.size(); i++ ) {
 				Model * model = new Model();
@@ -552,16 +553,16 @@ void Application::UpdateUniforms() {
 		// Update the uniform buffer with the camera information
 		//
 		{
-			Vec3 camPos = Vec3( 10, 0, 5 ) * 1.25f;
+			m_camPos = Vec3( 10, 0, 5 ) * 1.25f;
 			Vec3 camLookAt = Vec3( 0, 0, 1 );
 			Vec3 camUp = Vec3( 0, 0, 1 );
 
-			camPos.x = cosf( m_cameraPositionPhi ) * sinf( m_cameraPositionTheta );
-			camPos.y = sinf( m_cameraPositionPhi ) * sinf( m_cameraPositionTheta );
-			camPos.z = cosf( m_cameraPositionTheta );
-			camPos *= m_cameraRadius;
+			m_camPos.x = cosf( m_cameraPositionPhi ) * sinf( m_cameraPositionTheta );
+			m_camPos.y = sinf( m_cameraPositionPhi ) * sinf( m_cameraPositionTheta );
+			m_camPos.z = cosf( m_cameraPositionTheta );
+			m_camPos *= m_cameraRadius;
 
-			camPos += m_cameraFocusPoint;
+			m_camPos += m_cameraFocusPoint;
 
 			camLookAt = m_cameraFocusPoint;
 
@@ -576,7 +577,7 @@ void Application::UpdateUniforms() {
 			camera.matProj.PerspectiveVulkan( fovy, aspect, zNear, zFar );
 			camera.matProj = camera.matProj.Transpose();
 
-			camera.matView.LookAt( camPos, camLookAt, camUp );
+			camera.matView.LookAt( m_camPos, camLookAt, camUp );
 			camera.matView = camera.matView.Transpose();
 
 			// Update the uniform buffer for the camera matrices

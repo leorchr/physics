@@ -21,35 +21,36 @@ void Scene::Reset() {
 
 void Scene::Initialize() {
 	Body body;
-	for (int i = 0; i < 6; ++i)
-	{
-		for (int j = 0; j < 6; ++j)
-		{
-			float radius = 0.5f;
-			float x = (i - 1) * radius * 1.5f;
-			float y = (j - 1) * radius * 1.5f;
-			body.position = Vec3(x, y, 10);
-			body.orientation = Quat(0, 0, 0, 1);
-			body.shape = new ShapeSphere(radius);
-			body.inverseMass = 1.0f;
-			body.elasticity = 0.5f;
-			body.friction = 0.5f;
-			body.linearVelocity.Zero();
-			bodies.push_back(body);
-		}
-	}
+	// for (int i = 0; i < 6; ++i)
+	// {
+	// 	for (int j = 0; j < 6; ++j)
+	// 	{
+	// 		float radius = 0.5f;
+	// 		float x = (i - 1) * radius * 1.5f;
+	// 		float y = (j - 1) * radius * 1.5f;
+	// 		body.position = Vec3(x, y, 10);
+	// 		body.orientation = Quat(0, 0, 0, 1);
+	// 		body.shape = new ShapeSphere(radius);
+	// 		body.inverseMass = 1.0f;
+	// 		body.elasticity = 0.5f;
+	// 		body.friction = 0.5f;
+	// 		body.linearVelocity.Zero();
+	// 		bodies.push_back(body);
+	// 	}
+	// }
+	
 	for (int i = 0; i < 3; ++i)
 	{
 		for (int j = 0; j < 3; ++j)
 		{
-			float radius = 80.0f;
+			float radius = 300.0f;
 			float x = (i - 1) * radius * 0.25f;
 			float y = (j - 1) * radius * 0.25f;
 			body.position = Vec3(x, y, -radius);
 			body.orientation = Quat(0, 0, 0, 1);
 			body.shape = new ShapeSphere(radius);
 			body.inverseMass = 0.0f;
-			body.elasticity = 0.99f;
+			body.elasticity = 0.2f;
 			body.friction = 0.5f;
 			bodies.push_back(body);
 		}
@@ -129,30 +130,30 @@ bool Scene::EndUpdate()
 {
 	if (!std::empty(nextSpawnBodies))
 	{
-		std::vector<Body> bodiesToMove;
-		for (auto body : nextSpawnBodies)
+		for (auto& body : nextSpawnBodies)
 		{
-			bodiesToMove.push_back(body);
+			bodies.push_back(std::move(body));  // Move the body instead of copying it
 		}
-
-		// Remove all bodies from nextSpawnBodies and add them to bodies
-		nextSpawnBodies.clear();
-		bodies.insert(bodies.end(), bodiesToMove.begin(), bodiesToMove.end());
+		nextSpawnBodies.clear(); // Clear the original list after moving
 		return true;
 	}
 	return false;
 }
 
-void Scene::SpawnBall()
+
+void Scene::SpawnBall(const Vec3& cameraPos, const Vec3& cameraFocusPoint)
 {
+	Vec3 dir = cameraFocusPoint - cameraPos;
+	dir.Normalize();
+	
 	Body body;
 	float radius = 0.5f;
-	body.position = Vec3(0, 0, 10);
-	body.orientation = Quat(0, 0, 0, 1);
+	body.position = cameraPos + dir * 20;
+	body.linearVelocity = dir * 5;
+	body.orientation = Quat(0,0,0,1);
 	body.shape = new ShapeSphere(radius);
 	body.inverseMass = 1.0f;
-	body.elasticity = 0.5f;
+	body.elasticity = 0.1f;
 	body.friction = 0.5f;
-	body.linearVelocity.Zero();
 	nextSpawnBodies.push_back(body);
 }

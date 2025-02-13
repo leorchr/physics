@@ -51,6 +51,7 @@ private:
 	static void OnMouseWheelScrolled( GLFWwindow * window, double x, double y );
 	static void OnKeyboard( GLFWwindow * window, int key, int scancode, int action, int modifiers );
 	static void OnMouseButtonPressed(GLFWwindow* window, int button, int action, int mods);
+
 private:
 	class Scene * scene;
 
@@ -79,6 +80,7 @@ private:
 	// User input
 	Vec2 m_mousePosition;
 	Vec3 m_cameraFocusPoint;
+	Vec3 m_camPos;
 	float m_cameraPositionTheta;
 	float m_cameraPositionPhi;
 	float m_cameraRadius;
