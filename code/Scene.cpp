@@ -147,7 +147,8 @@ void Scene::SpawnBall(const Vec3& cameraPos, const Vec3& cameraFocusPoint)
 	dir.Normalize();
 	
 	Body body;
-	float radius = 0.5f;
+	float radius = std::min(size,0.8f);
+	size += 2.0f;
 	body.position = cameraPos + dir * 20;
 	body.linearVelocity = dir * 5;
 	body.orientation = Quat(0,0,0,1);
@@ -157,3 +158,5 @@ void Scene::SpawnBall(const Vec3& cameraPos, const Vec3& cameraFocusPoint)
 	body.friction = 0.5f;
 	nextSpawnBodies.push_back(body);
 }
+
+float Scene::size = 0.4f;

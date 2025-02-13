@@ -26,5 +26,7 @@ public:
 
 	std::vector<Body> bodies;
 	std::vector<Body> nextSpawnBodies;
+
+	static float size;
 };
 
