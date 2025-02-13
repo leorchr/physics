@@ -8,11 +8,12 @@ class Body
 public:
 	Vec3 position;
 	Quat orientation;
-
 	Vec3 linearVelocity;
 	Vec3 angularVelocity;
+	
 	float inverseMass;
 	float elasticity;
+	float friction;
 	
 	Shape* shape;
 	
