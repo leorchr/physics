@@ -11,6 +11,7 @@ public:
 
 	Vec3 linearVelocity;
 	float inverseMass;
+	float elasticity;
 	
 	Shape* shape;
 	Vec3 GetCenterOfMassWorldSpace() const;
