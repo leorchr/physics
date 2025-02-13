@@ -1,17 +1,9 @@
-//
-//	Bounds.h
-//
 #pragma once
 #include <math.h>
 #include <assert.h>
 #include "Vector.h"
 #include <vector>
 
-/*
-====================================================
-Bounds
-====================================================
-*/
 class Bounds {
 public:
 	Bounds() { Clear(); }

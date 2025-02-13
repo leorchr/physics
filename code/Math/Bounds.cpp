@@ -1,25 +1,12 @@
-//
-//	Bounds.cpp
-//
 #include "Bounds.h"
 #include "../../Body.h"
 
-/*
-====================================================
-Bounds::operator =
-====================================================
-*/
 const Bounds & Bounds::operator = ( const Bounds & rhs ) {
 	mins = rhs.mins;
 	maxs = rhs.maxs;
 	return *this;
 }
 
-/*
-====================================================
-Bounds::DoesIntersect
-====================================================
-*/
 bool Bounds::DoesIntersect( const Bounds & rhs ) const {
 	if ( maxs.x < rhs.mins.x || maxs.y < rhs.mins.y || maxs.z < rhs.mins.z ) {
 		return false;
@@ -30,22 +17,12 @@ bool Bounds::DoesIntersect( const Bounds & rhs ) const {
 	return true;
 }
 
-/*
-====================================================
-Bounds::Expand
-====================================================
-*/
 void Bounds::Expand( const Vec3 * pts, const int num ) {
 	for ( int i = 0; i < num; i++ ) {
 		Expand( pts[ i ] );
 	}
 }
 
-/*
-====================================================
-Bounds::Expand
-====================================================
-*/
 void Bounds::Expand( const Vec3 & rhs ) {
 	if ( rhs.x < mins.x ) {
 		mins.x = rhs.x;
@@ -68,11 +45,6 @@ void Bounds::Expand( const Vec3 & rhs ) {
 	}
 }
 
-/*
-====================================================
-Bounds::Expand
-====================================================
-*/
 void Bounds::Expand( const Bounds & rhs ) {
 	Expand( rhs.mins );
 	Expand( rhs.maxs );

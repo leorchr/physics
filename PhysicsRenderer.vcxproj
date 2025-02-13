@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Body.cpp" />
+    <ClCompile Include="Broadphase.cpp" />
     <ClCompile Include="code\application.cpp" />
     <ClCompile Include="code\Fileio.cpp" />
     <ClCompile Include="code\main.cpp" />
@@ -44,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Body.h" />
+    <ClInclude Include="Broadphase.h" />
     <ClInclude Include="code\application.h" />
     <ClInclude Include="code\Fileio.h" />
     <ClInclude Include="code\Math\Bounds.h" />

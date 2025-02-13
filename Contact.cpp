@@ -60,13 +60,16 @@ void Contact::ResolveContact(Contact& contact)
 	// -- Apply kinetic friction
 	a->ApplyImpulse(ptOnA, impulseFriction * -1.0f);
 	b->ApplyImpulse(ptOnB, impulseFriction * 1.0f);
-	
+
 	// If object are interpenetrating, use this to set them on contact
-	const float tA = invMassA / (invMassA + invMassB);
-	const float tB = invMassB / (invMassA + invMassB);
-	const Vec3 d = contact.ptOnBWorldSpace - contact.ptOnAWorldSpace;
-	a->position += d * tA;
-	b->position -= d * tB;
+	if (contact.timeOfImpact == 0.0f)
+	{
+		const float tA = invMassA / (invMassA + invMassB);
+		const float tB = invMassB / (invMassA + invMassB);
+		const Vec3 d = ptOnB - ptOnA;
+		a->position += d * tA;
+		b->position -= d * tB;
+	}
 }
 
 int Contact::CompareContact(const void* p1, const void* p2)
