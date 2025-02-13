@@ -40,6 +40,7 @@
     <ClCompile Include="code\Scene.cpp" />
     <ClCompile Include="Contact.cpp" />
     <ClCompile Include="Intersections.cpp" />
+    <ClCompile Include="Shape.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Body.h" />

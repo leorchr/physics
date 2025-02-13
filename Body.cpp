@@ -1,6 +1,26 @@
 #include "Body.h"
 #include "Shape.h"
 
+void Body::Update(const float dt_sec)
+{
+	position += linearVelocity * dt_sec;
+	Vec3 positionCM = GetCenterOfMassWorldSpace();
+	Vec3 CMToPositon = position - positionCM;
+	Mat3 orientationMat = orientation.ToMat3();
+	Mat3 inertiaTensor = orientationMat * shape->InertiaTensor() * orientationMat.Transpose();
+
+	Vec3 alpha = inertiaTensor.Inverse() * (angularVelocity.Cross(inertiaTensor * angularVelocity));
+
+	angularVelocity += alpha * dt_sec;
+	// Update orientation
+	Vec3 dAngle = angularVelocity * dt_sec;
+	Quat dq = Quat(dAngle, dAngle.GetMagnitude());
+	orientation = dq * orientation;
+	orientation.Normalize();
+	// Get the new model position
+	position = positionCM + dq.RotatePoint(CMToPositon);
+}
+
 Vec3 Body::GetCenterOfMassWorldSpace() const
 {
 	const Vec3 centerOfMass = shape->GetCenterOfMass();
@@ -35,4 +55,49 @@ void Body::ApplyImpulseLinear(const Vec3& impulse)
 	if (inverseMass == 0.0f) return;
 	// dv = J / m
 	linearVelocity += impulse * inverseMass;
+}
+
+Mat3 Body::GetInverseInertiaTensorBodySpace() const
+{
+	Mat3 inertiaTensor = shape->InertiaTensor();
+	Mat3 inverseInertiaTensor = inertiaTensor.Inverse() * inverseMass;
+	return inverseInertiaTensor;
+}
+Mat3 Body::GetInverseInertiaTensorWorldSpace() const
+{
+	Mat3 inertiaTensor = shape->InertiaTensor();
+	Mat3 inverseInertiaTensor = inertiaTensor.Inverse() * inverseMass;
+	Mat3 orient = orientation.ToMat3();
+	inverseInertiaTensor = orient * inverseInertiaTensor
+	* orient.Transpose();
+
+	return inverseInertiaTensor;
+}
+
+void Body::ApplyImpulseAngular(const Vec3& impulse)
+{
+	if (inverseMass == 0.0f) return;
+	// L = I w = r x p
+	// dL = I dw = r x J
+	// dw = I^-1 * ( r x J )
+	angularVelocity += GetInverseInertiaTensorWorldSpace() * impulse;
+	// Clamp angular velocity
+	// -- 30 rad per seconds, sufficient for now
+	const float maxAngularSpeed = 30.0f;
+	if (angularVelocity.GetLengthSqr() > maxAngularSpeed * maxAngularSpeed)
+	{
+		angularVelocity.Normalize();
+		angularVelocity *= maxAngularSpeed;
+	}
+}
+
+void Body::ApplyImpulse(const Vec3& impulsePoint, const Vec3& impulse)
+{
+	if (inverseMass == 0.0f) return;
+	ApplyImpulseLinear(impulse);
+	// Applying impulse must produce torques through the center of mass
+	Vec3 position = GetCenterOfMassWorldSpace();
+	Vec3 r = impulsePoint - position;
+	Vec3 dL = r.Cross(impulse); // World space
+	ApplyImpulseAngular(dL);
 }

@@ -1,4 +1,7 @@
 #pragma once
+#include "code/Math/Matrix.h"
+#include "code/Math/Vector.h"
+
 class Shape {
 public:
 	enum class ShapeType
@@ -8,9 +11,11 @@ public:
 
 	virtual ShapeType GetType() const = 0;
 	virtual Vec3 GetCenterOfMass() const { return centerOfMass; }
+	virtual Mat3 InertiaTensor() const = 0;
 protected:
 	Vec3 centerOfMass;
 };
+
 
 class ShapeSphere : public Shape {
 public:
@@ -18,8 +23,9 @@ public:
 	{
 		centerOfMass.Zero();
 	}
-
+	
 	ShapeType GetType() const override { return ShapeType::SHAPE_SPHERE; }
+	Mat3 InertiaTensor() const override;
 	float radius;
 };
 
