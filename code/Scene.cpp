@@ -2,6 +2,10 @@
 #include "../Shape.h"
 #include "../Intersections.h"
 #include "../Broadphase.h"
+#include "../Player.h"
+
+#include <algorithm>
+#include <iostream>
 
 Scene::~Scene() {
 	for ( int i = 0; i < bodies.size(); i++ ) {
@@ -20,41 +24,15 @@ void Scene::Reset() {
 }
 
 void Scene::Initialize() {
-	Body body;
-	// for (int i = 0; i < 6; ++i)
-	// {
-	// 	for (int j = 0; j < 6; ++j)
-	// 	{
-	// 		float radius = 0.5f;
-	// 		float x = (i - 1) * radius * 1.5f;
-	// 		float y = (j - 1) * radius * 1.5f;
-	// 		body.position = Vec3(x, y, 10);
-	// 		body.orientation = Quat(0, 0, 0, 1);
-	// 		body.shape = new ShapeSphere(radius);
-	// 		body.inverseMass = 1.0f;
-	// 		body.elasticity = 0.5f;
-	// 		body.friction = 0.5f;
-	// 		body.linearVelocity.Zero();
-	// 		bodies.push_back(body);
-	// 	}
-	// }
 	
-	for (int i = 0; i < 3; ++i)
-	{
-		for (int j = 0; j < 3; ++j)
-		{
-			float radius = 300.0f;
-			float x = (i - 1) * radius * 0.25f;
-			float y = (j - 1) * radius * 0.25f;
-			body.position = Vec3(x, y, -radius);
-			body.orientation = Quat(0, 0, 0, 1);
-			body.shape = new ShapeSphere(radius);
-			body.inverseMass = 0.0f;
-			body.elasticity = 0.2f;
-			body.friction = 0.5f;
-			bodies.push_back(body);
-		}
-	}
+	float radius = 500.0f;
+	earth.position = Vec3(0, 0, -radius);
+	earth.orientation = Quat(0, 0, 0, 1);
+	earth.shape = new ShapeSphere(radius);
+	earth.inverseMass = 0.0f;
+	earth.elasticity = 0.2f;
+	earth.friction = 0.5f;
+	bodies.push_back(earth);
 }
 
 void Scene::Update(const float dt_sec)
@@ -67,8 +45,16 @@ void Scene::Update(const float dt_sec)
 		// Gravity needs to be an impulse I
 		// I == dp, so F == dp/dt <=> dp = F * dt
 		// <=> I = F * dt <=> I = m * g * dt
-		Vec3 impulseGravity = Vec3(0, 0, -10) * mass * dt_sec;
+		Vec3 centerOfGravity = earth.position - body.position;
+		centerOfGravity.Normalize();
+		centerOfGravity *= 9.8f;
+
+		Vec3 impulseGravity = centerOfGravity * mass * dt_sec;
 		body.ApplyImpulseLinear(impulseGravity);
+
+		
+		body.linearVelocity = Vec3::Lerp(body.linearVelocity, Vec3(0, 0, 0), 0.01);
+		body.angularVelocity = Vec3::Lerp(body.angularVelocity, Vec3(0, 0, 0), 0.01);
 	}
 	// Broadphase
 	std::vector<CollisionPair> collisionPairs;
@@ -124,6 +110,13 @@ void Scene::Update(const float dt_sec)
 			bodies[i].Update(timeRemaining);
 		}
 	}
+
+	if (currentBall != nullptr) {
+		float velocityLength = std::abs(currentBall->linearVelocity.GetLengthSqr());
+		if (std::abs(currentBall->linearVelocity.GetLengthSqr()) < 1406.26f) {
+			std::cout << "Je suis proche de 0\n" << std::flush;
+		}
+	}
 }
 
 bool Scene::EndUpdate()
@@ -132,7 +125,7 @@ bool Scene::EndUpdate()
 	{
 		for (auto& body : nextSpawnBodies)
 		{
-			bodies.push_back(std::move(body));  // Move the body instead of copying it
+			bodies.push_back(std::move(body));
 		}
 		nextSpawnBodies.clear(); // Clear the original list after moving
 		return true;
@@ -141,22 +134,38 @@ bool Scene::EndUpdate()
 }
 
 
-void Scene::SpawnBall(const Vec3& cameraPos, const Vec3& cameraFocusPoint)
+void Scene::SpawnBall(const Vec3& cameraPos, const Vec3& cameraFocusPoint, float strength)
 {
+	if (!canShoot) return;
+
 	Vec3 dir = cameraFocusPoint - cameraPos;
 	dir.Normalize();
 	
-	Body body;
-	float radius = std::min(size,0.8f);
-	size += 2.0f;
-	body.position = cameraPos + dir * 20;
-	body.linearVelocity = dir * 5;
-	body.orientation = Quat(0,0,0,1);
-	body.shape = new ShapeSphere(radius);
-	body.inverseMass = 1.0f;
-	body.elasticity = 0.1f;
-	body.friction = 0.5f;
-	nextSpawnBodies.push_back(body);
+	float radius = 0.0f;
+	if (firstShoot) {
+		radius = 0.8f;
+	}
+	else {
+		radius = 1.5f;
+	}
+	currentBall = new Body();
+	currentBall->position = cameraPos + dir * 20;
+	currentBall->linearVelocity = dir * 75 * std::min(std::max(0.5f,strength) , 2.0f);
+	currentBall->orientation = Quat(0,0,0,1);
+	currentBall->shape = new ShapeSphere(radius);
+	currentBall->inverseMass = 1.0f;
+	currentBall->elasticity = 0.1f;
+	currentBall->friction = 0.5f;
+	nextSpawnBodies.push_back(*currentBall);
+
+
+	if (firstShoot) {
+		cochonnet = currentBall;
+	}
+	else {
+		balls.push_back(currentBall);
+	}
+
 }
 
 float Scene::size = 0.4f;

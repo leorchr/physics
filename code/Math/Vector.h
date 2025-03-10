@@ -224,6 +224,11 @@ public:
 	
 	const float * ToPtr() const { return &x; }
 
+	static Vec3 Lerp(const Vec3& start, const Vec3& end, float t) {
+		t = (t < 0.0f) ? 0.0f : (t > 1.0f) ? 1.0f : t;  // Clamp t between 0 and 1
+		return start + (end - start) * t;
+	}
+
 public:
 	float x;
 	float y;

@@ -1,7 +1,6 @@
 //
 //  application.cpp
 //
-#include <chrono>
 #include <thread>
 
 #include "Renderer/DeviceContext.h"
@@ -124,7 +123,7 @@ void Application::InitializeGLFW() {
 	glfwSetCursorPosCallback( glfwWindow, Application::OnMouseMoved );
 	glfwSetScrollCallback( glfwWindow, Application::OnMouseWheelScrolled );
 	glfwSetKeyCallback( glfwWindow, Application::OnKeyboard );
-	glfwSetMouseButtonCallback(glfwWindow, Application::OnMouseButtonPressed);
+	glfwSetMouseButtonCallback(glfwWindow, Application::OnMouseButton);
 }
 
 /*
@@ -418,7 +417,7 @@ void Application::OnKeyboard( GLFWwindow * window, int key, int scancode, int ac
 	application->Keyboard( key, scancode, action, modifiers );
 }
 
-void Application::OnMouseButtonPressed(GLFWwindow* window, int button, int action, int mods)
+void Application::OnMouseButton(GLFWwindow* window, int button, int action, int mods)
 {
 	Application * application = reinterpret_cast< Application * >( glfwGetWindowUserPointer( window ) );
 	application->MouseButton( button, action, mods );
@@ -428,7 +427,14 @@ void Application::MouseButton(int button, int action, int mods)
 {
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 	{
-		scene->SpawnBall(m_camPos, m_cameraFocusPoint);
+		start = std::chrono::high_resolution_clock::now();
+	}
+	
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
+	{
+		end = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<float> duration = end - start;
+		scene->SpawnBall(m_camPos, m_cameraFocusPoint, duration.count());
 	}
 }
 

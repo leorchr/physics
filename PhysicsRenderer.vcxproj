@@ -41,6 +41,7 @@
     <ClCompile Include="code\Scene.cpp" />
     <ClCompile Include="Contact.cpp" />
     <ClCompile Include="Intersections.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Shape.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -68,6 +69,7 @@
     <ClInclude Include="code\Scene.h" />
     <ClInclude Include="Contact.h" />
     <ClInclude Include="Intersections.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Shape.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

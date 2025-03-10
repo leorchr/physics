@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
+#include <chrono>
 
 #include "Math/Vector.h"
 #include "Math/Quat.h"
@@ -50,7 +51,7 @@ private:
 	static void OnMouseMoved( GLFWwindow * window, double x, double y );
 	static void OnMouseWheelScrolled( GLFWwindow * window, double x, double y );
 	static void OnKeyboard( GLFWwindow * window, int key, int scancode, int action, int modifiers );
-	static void OnMouseButtonPressed(GLFWwindow* window, int button, int action, int mods);
+	static void OnMouseButton(GLFWwindow* window, int button, int action, int mods);
 
 private:
 	class Scene * scene;
@@ -93,6 +94,10 @@ private:
 	static const int WINDOW_HEIGHT = 720;
 
 	static const bool m_enableLayers = true;
+
+
+	std::chrono::high_resolution_clock::time_point start;
+	std::chrono::high_resolution_clock::time_point end;
 };
 
 extern Application * application;
