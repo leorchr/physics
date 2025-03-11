@@ -26,7 +26,7 @@ void Scene::Reset() {
 
 void Scene::Initialize() {
 	
-	float radius = 500.0f;
+	float radius = 3.0f;
 	earth = new Body();
 	earth->position = Vec3(0, 0, -radius);
 	earth->orientation = Quat(0, 0, 0, 1);
@@ -55,14 +55,13 @@ void Scene::Update(const float dt_sec)
 		// <=> I = F * dt <=> I = m * g * dt
 		Vec3 centerOfGravity = earth->position - body.position;
 		centerOfGravity.Normalize();
-		centerOfGravity *= 9.8f;
+		centerOfGravity *= 15.f;
 
 		Vec3 impulseGravity = centerOfGravity * mass * dt_sec;
 		body.ApplyImpulseLinear(impulseGravity);
 
 		
-		body.linearVelocity = Vec3::Lerp(body.linearVelocity, Vec3(0, 0, 0), 0.01);
-		body.angularVelocity = Vec3::Lerp(body.angularVelocity, Vec3(0, 0, 0), 0.01);
+		
 	}
 	// Broadphase
 	std::vector<CollisionPair> collisionPairs;
@@ -83,6 +82,10 @@ void Scene::Update(const float dt_sec)
 		{
 			contacts[numContacts] = contact;
 			++numContacts;
+			bodyA.linearVelocity = Vec3::Lerp(bodyA.linearVelocity, Vec3(0, 0, 0), 0.015);
+			bodyA.angularVelocity = Vec3::Lerp(bodyA.angularVelocity, Vec3(0, 0, 0), 0.015);
+			bodyB.linearVelocity = Vec3::Lerp(bodyB.linearVelocity, Vec3(0, 0, 0), 0.015);
+			bodyB.angularVelocity = Vec3::Lerp(bodyB.angularVelocity, Vec3(0, 0, 0), 0.015);
 		}
 	}
 	// Sort times of impact
@@ -168,19 +171,19 @@ void Scene::SpawnBall(const Vec3& cameraPos, const Vec3& cameraFocusPoint, float
 	Type type = Type::None;
 	float radius = 0.0f;
 	if (firstShoot) {
-		radius = 0.8f;
+		radius = 0.3f;
 		type = Type::Cochonnet;
 	}
 	else {
 		currentPlayer->shoot();
-		radius = 1.5f;
+		radius = .8f;
 		type = Type::Boule;
 	}
 
 	start = std::chrono::system_clock::now();
 	currentBall = new Ball(type, currentPlayer);
 	currentBall->position = cameraPos + dir * 20;
-	currentBall->linearVelocity = dir * 75 * std::min(std::max(0.5f,strength) , 2.0f);
+	currentBall->linearVelocity = dir * 100 * std::min(std::max(0.5f,strength) , 2.0f);
 	currentBall->orientation = Quat(0,0,0,1);
 	currentBall->shape = new ShapeSphere(radius);
 	currentBall->inverseMass = 1.0f;
