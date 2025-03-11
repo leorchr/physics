@@ -25,8 +25,8 @@ public:
 	
 	void SpawnBall(const Vec3& cameraPos, const Vec3& cameraFocusPoint, float strength);
 
-	std::vector<Body> bodies;
-	std::vector<Body> nextSpawnBodies;
+	std::vector<Body*> bodies;
+	std::vector<Body*> nextSpawnBodies;
 	bool IsShootFinished();
 	void CheckClosestPlayer();
 	void PrintWhosTurn();
@@ -40,14 +40,14 @@ public:
 
 
 private:
-	Body earth;
+	class Body* earth = nullptr;
 
-	class Player* player1;
-	class Player* player2;
-	class Player* currentPlayer;
-	class Player* winner;
+	class Player* player1 = nullptr;
+	class Player* player2 = nullptr;
+	class Player* currentPlayer = nullptr;
+	class Player* winner = nullptr;
 
-	class Ball* cochonnet;
+	class Ball* cochonnet = nullptr;
 	std::vector<class Ball*> balls;
 
 	class Ball* currentBall = nullptr;

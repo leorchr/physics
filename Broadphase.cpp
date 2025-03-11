@@ -11,13 +11,13 @@ int CompareSAP(const void* a, const void* b) {
 	return 1;
 }
 
-void SortBodiesBounds(const Body* bodies, const size_t num, PseudoBody* sortedArray, const float dt_sec)
+void SortBodiesBounds(const std::vector<Body*>& bodies, PseudoBody* sortedArray, const float dt_sec)
 {
 	Vec3 axis = Vec3(1, 1, 1);
 	axis.Normalize();
-	for (int i = 0; i < num; i++)
+	for (int i = 0; i < bodies.size(); i++)
 	{
-		const Body& body = bodies[i];
+		const Body& body = *bodies[i];
 		Bounds bounds =	body.shape->GetBounds(body.position, body.orientation);
 		// Expand the bounds by the linear velocity
 		bounds.Expand(bounds.mins + body.linearVelocity * dt_sec);
@@ -32,7 +32,7 @@ void SortBodiesBounds(const Body* bodies, const size_t num, PseudoBody* sortedAr
 		sortedArray[i * 2 + 1].value = axis.Dot(bounds.maxs);
 		sortedArray[i * 2 + 1].ismin = false;
 	}
-	qsort(sortedArray, num * 2, sizeof(PseudoBody), CompareSAP);
+	qsort(sortedArray, bodies.size() * 2, sizeof(PseudoBody), CompareSAP);
 }
 
 void BuildPairs(std::vector< CollisionPair >& collisionPairs,
@@ -63,16 +63,20 @@ const PseudoBody* sortedBodies, const int num)
 	}
 }
 
-void SweepAndPrune1D(const Body* bodies, const size_t num, std::vector< CollisionPair >& finalPairs, const float dt_sec)
+void SweepAndPrune1D(const std::vector<Body*>& bodies, std::vector<CollisionPair>& finalPairs, const float dt_sec)
 {
-	PseudoBody* sortedBodies =
-	(PseudoBody*)alloca(sizeof(PseudoBody) * num * 2);
-	SortBodiesBounds(bodies, num, sortedBodies, dt_sec);
-	BuildPairs(finalPairs, sortedBodies, num);
+	// Allocation mémoire pour un tableau de PseudoBody
+	PseudoBody* sortedBodies = (PseudoBody*)alloca(sizeof(PseudoBody) * bodies.size() * 2);
+
+	// Tri des objets en fonction de leurs bornes
+	SortBodiesBounds(bodies, sortedBodies, dt_sec);
+
+	// Construction des paires de collisions
+	BuildPairs(finalPairs, sortedBodies, bodies.size());
 }
 
-void BroadPhase(const Body* bodies, const int num, std::vector< CollisionPair >& finalPairs, const float dt_sec)
+void BroadPhase(const std::vector<Body*>& bodies, std::vector< CollisionPair >& finalPairs, const float dt_sec)
 {
 	finalPairs.clear();
-	SweepAndPrune1D(bodies, num, finalPairs, dt_sec);
+	SweepAndPrune1D(bodies, finalPairs, dt_sec);
 }

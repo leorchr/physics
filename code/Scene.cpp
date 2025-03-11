@@ -10,14 +10,14 @@
 
 Scene::~Scene() {
 	for ( int i = 0; i < bodies.size(); i++ ) {
-		delete bodies[ i ].shape;
+		delete bodies[ i ]->shape;
 	}
 	bodies.clear();
 }
 
 void Scene::Reset() {
 	for ( int i = 0; i < bodies.size(); i++ ) {
-		delete bodies[ i ].shape;
+		if (bodies[i]->shape != nullptr) delete bodies[i]->shape;
 	}
 	bodies.clear();
 
@@ -27,18 +27,20 @@ void Scene::Reset() {
 void Scene::Initialize() {
 	
 	float radius = 500.0f;
-	earth.position = Vec3(0, 0, -radius);
-	earth.orientation = Quat(0, 0, 0, 1);
-	earth.shape = new ShapeSphere(radius);
-	earth.inverseMass = 0.0f;
-	earth.elasticity = 0.2f;
-	earth.friction = 0.5f;
+	earth = new Body();
+	earth->position = Vec3(0, 0, -radius);
+	earth->orientation = Quat(0, 0, 0, 1);
+	earth->shape = new ShapeSphere(radius);
+	earth->inverseMass = 0.0f;
+	earth->elasticity = 0.2f;
+	earth->friction = 0.5f;
 	bodies.push_back(earth);
 
-	player1 = new Player(Name::Player1);
-	player2 = new Player(Name::Player2);
+	if(player1 == nullptr) player1 = new Player(Name::Player1);
+	if(player2 == nullptr) player2 = new Player(Name::Player2);
 
-	currentPlayer = player1;
+	if (winner == nullptr) currentPlayer = player1;
+	else currentPlayer = winner;
 }
 
 void Scene::Update(const float dt_sec)
@@ -46,12 +48,12 @@ void Scene::Update(const float dt_sec)
 	// Gravity
 	for (int i = 0; i < bodies.size(); ++i)
 	{
-		Body& body = bodies[i];
+		Body& body = *bodies[i];
 		float mass = 1.0f / body.inverseMass;
 		// Gravity needs to be an impulse I
 		// I == dp, so F == dp/dt <=> dp = F * dt
 		// <=> I = F * dt <=> I = m * g * dt
-		Vec3 centerOfGravity = earth.position - body.position;
+		Vec3 centerOfGravity = earth->position - body.position;
 		centerOfGravity.Normalize();
 		centerOfGravity *= 9.8f;
 
@@ -64,7 +66,7 @@ void Scene::Update(const float dt_sec)
 	}
 	// Broadphase
 	std::vector<CollisionPair> collisionPairs;
-	BroadPhase(bodies.data(), bodies.size(), collisionPairs, dt_sec);
+	BroadPhase(bodies, collisionPairs, dt_sec);
 	// Collision checks (Narrow phase)
 	int numContacts = 0;
 	const int maxContacts = bodies.size() * bodies.size();
@@ -72,8 +74,8 @@ void Scene::Update(const float dt_sec)
 	for (int i = 0; i < collisionPairs.size(); ++i)
 	{
 		const CollisionPair& pair = collisionPairs[i];
-		Body& bodyA = bodies[pair.a];
-		Body& bodyB = bodies[pair.b];
+		Body& bodyA = *bodies[pair.a];
+		Body& bodyB = *bodies[pair.b];
 		if (bodyA.inverseMass == 0.0f && bodyB.inverseMass == 0.0f)
 			continue;
 		Contact contact;
@@ -102,7 +104,7 @@ void Scene::Update(const float dt_sec)
 			continue;
 		// Position update
 		for (int j = 0; j < bodies.size(); ++j) {
-			bodies[j].Update(dt);
+			bodies[j]->Update(dt);
 		}
 		Contact::ResolveContact(contact);
 		accumulatedTime += dt;
@@ -113,7 +115,7 @@ void Scene::Update(const float dt_sec)
 	if (timeRemaining > 0.0f)
 	{
 		for (int i = 0; i < bodies.size(); ++i) {
-			bodies[i].Update(timeRemaining);
+			bodies[i]->Update(timeRemaining);
 		}
 	}
 
@@ -143,7 +145,7 @@ bool Scene::EndUpdate()
 	{
 		for (auto& body : nextSpawnBodies)
 		{
-			bodies.push_back(std::move(body));
+			bodies.push_back(body);
 		}
 		nextSpawnBodies.clear(); // Clear the original list after moving
 		return true;
@@ -194,7 +196,7 @@ void Scene::SpawnBall(const Vec3& cameraPos, const Vec3& cameraFocusPoint, float
 		balls.push_back(currentBall);
 	}
 
-	nextSpawnBodies.push_back(std::move(*currentBall));
+	nextSpawnBodies.push_back(currentBall);
 
 	canShoot = false;
 
@@ -288,10 +290,12 @@ void Scene::SetWinnerScore()
 	int score = winner->getScore();
 	score++;
 
-	leftBalls.erase(std::find(std::begin(leftBalls), std::end(leftBalls), closestBall));
+	leftBalls.erase(std::remove(leftBalls.begin(), leftBalls.end(), closestBall), leftBalls.end());
 
 
 	while (!leftBalls.empty()) {
+
+		minDist = std::numeric_limits<float>::max();
 		Player* closestPlayer = nullptr;
 		Ball* newClosestBall = nullptr;
 
@@ -309,7 +313,7 @@ void Scene::SetWinnerScore()
 		if (closestPlayer != winner) leftBalls.clear();
 		else {
 			score++;
-			leftBalls.erase(std::find(std::begin(leftBalls), std::end(leftBalls), newClosestBall));
+			leftBalls.erase(std::remove(leftBalls.begin(), leftBalls.end(), newClosestBall), leftBalls.end());
 		}
 	}
 
@@ -346,16 +350,11 @@ void Scene::ResetScene()
 	player1->setShootLeft(3);
 	player2->setShootLeft(3);
 
-	currentPlayer = winner;
+	Reset();
 
-	if (cochonnet != nullptr) delete cochonnet;
-	
-	for (auto ball : balls) {
-		if (ball != nullptr) delete ball;
-	}
+	cochonnet = nullptr;
 	balls.clear();
 
-	currentPlayer = nullptr;
 	winner = nullptr;
 	currentBall = nullptr;
 

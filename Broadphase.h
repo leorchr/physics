@@ -22,4 +22,4 @@ struct PseudoBody
 	bool ismin;
 };
 
-void BroadPhase(const Body* bodies, const int num, std::vector<CollisionPair>& finalPairs, const float dt_sec);
+void BroadPhase(const std::vector<Body*>& bodies, std::vector<CollisionPair>& finalPairs, const float dt_sec);

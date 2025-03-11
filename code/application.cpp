@@ -78,7 +78,7 @@ void Application::Initialize() {
 	m_models.reserve( scene->bodies.size() );
 	for ( int i = 0; i < scene->bodies.size(); i++ ) {
 		Model * model = new Model();
-		model->BuildFromShape( scene->bodies[ i ].shape );
+		model->BuildFromShape( scene->bodies[ i ]->shape );
 		model->MakeVBO( &deviceContext );
 
 		m_models.push_back( model );
@@ -520,7 +520,7 @@ void Application::MainLoop() {
 			m_models.reserve( scene->bodies.size() );
 			for ( int i = 0; i < scene->bodies.size(); i++ ) {
 				Model * model = new Model();
-				model->BuildFromShape( scene->bodies[ i ].shape );
+				model->BuildFromShape( scene->bodies[ i ]->shape );
 				model->MakeVBO( &deviceContext );
 
 				m_models.push_back( model );
@@ -636,7 +636,7 @@ void Application::UpdateUniforms() {
 		//	Update the uniform buffer with the body positions/orientations
 		//
 		for ( int i = 0; i < scene->bodies.size(); i++ ) {
-			Body & body = scene->bodies[ i ];
+			Body & body = *scene->bodies[ i ];
 
 			Vec3 fwd = body.orientation.RotatePoint( Vec3( 1, 0, 0 ) );
 			Vec3 up = body.orientation.RotatePoint( Vec3( 0, 0, 1 ) );
