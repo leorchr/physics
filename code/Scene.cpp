@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <chrono>
 
 Scene::~Scene() {
 	for ( int i = 0; i < bodies.size(); i++ ) {
@@ -33,6 +34,11 @@ void Scene::Initialize() {
 	earth.elasticity = 0.2f;
 	earth.friction = 0.5f;
 	bodies.push_back(earth);
+
+	player1 = new Player(Name::Player1);
+	player2 = new Player(Name::Player2);
+
+	currentPlayer = player1;
 }
 
 void Scene::Update(const float dt_sec)
@@ -111,11 +117,23 @@ void Scene::Update(const float dt_sec)
 		}
 	}
 
-	if (currentBall != nullptr) {
-		float velocityLength = std::abs(currentBall->linearVelocity.GetLengthSqr());
-		if (std::abs(currentBall->linearVelocity.GetLengthSqr()) < 1406.26f) {
-			std::cout << "Je suis proche de 0\n" << std::flush;
+
+	if (IsShootFinished()) {
+		if (firstShoot) {
+			firstShoot = false;
 		}
+		else if (firstTurn) {
+			currentPlayer == player1 ? currentPlayer = player2 : currentPlayer = player2;
+			firstTurn = false;
+		}
+		else {
+			CheckClosestPlayer();
+		}
+
+		PrintWhosTurn();
+		currentBall = nullptr;
+		canShoot = true;
+		
 	}
 }
 
@@ -137,18 +155,28 @@ bool Scene::EndUpdate()
 void Scene::SpawnBall(const Vec3& cameraPos, const Vec3& cameraFocusPoint, float strength)
 {
 	if (!canShoot) return;
+	if (currentPlayer == nullptr) return;
+
+	if (!currentPlayer->canShoot()) return;
+
 
 	Vec3 dir = cameraFocusPoint - cameraPos;
 	dir.Normalize();
 	
+	Type type = Type::None;
 	float radius = 0.0f;
 	if (firstShoot) {
 		radius = 0.8f;
+		type = Type::Cochonnet;
 	}
 	else {
+		currentPlayer->shoot();
 		radius = 1.5f;
+		type = Type::Boule;
 	}
-	currentBall = new Body();
+
+	start = std::chrono::system_clock::now();
+	currentBall = new Ball(type, currentPlayer);
 	currentBall->position = cameraPos + dir * 20;
 	currentBall->linearVelocity = dir * 75 * std::min(std::max(0.5f,strength) , 2.0f);
 	currentBall->orientation = Quat(0,0,0,1);
@@ -156,7 +184,7 @@ void Scene::SpawnBall(const Vec3& cameraPos, const Vec3& cameraFocusPoint, float
 	currentBall->inverseMass = 1.0f;
 	currentBall->elasticity = 0.1f;
 	currentBall->friction = 0.5f;
-	nextSpawnBodies.push_back(*currentBall);
+
 
 
 	if (firstShoot) {
@@ -166,6 +194,175 @@ void Scene::SpawnBall(const Vec3& cameraPos, const Vec3& cameraFocusPoint, float
 		balls.push_back(currentBall);
 	}
 
+	nextSpawnBodies.push_back(std::move(*currentBall));
+
+	canShoot = false;
+
+}
+
+bool Scene::IsShootFinished()
+{
+	if (currentBall != nullptr) {
+
+		std::chrono::time_point<std::chrono::system_clock> end = std::chrono::system_clock::now();
+
+		std::chrono::duration<float> elapsed_seconds = end - start;
+
+		if (elapsed_seconds.count() > 6.0f) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void Scene::CheckClosestPlayer()
+{
+	if (cochonnet == nullptr) return;
+
+	float minDist = std::numeric_limits<float>::max();
+
+	Player* closestPlayer = nullptr;
+
+	for (auto ball : balls) {
+		if (ball == nullptr) continue;
+
+		float dist = (ball->position - cochonnet->position).GetLengthSqr();
+		if (dist < minDist) {
+			minDist = dist;
+			closestPlayer = ball->getPlayer();
+		}
+	}
+	std::cout << "Le joueur " + closestPlayer->getStringName() << " est le plus proche !\n";
+
+	Player* nextPlayer = nullptr;
+
+	closestPlayer == player1 ? nextPlayer = player2 : nextPlayer = player1;
+
+	if (nextPlayer->canShoot()) currentPlayer = nextPlayer;
+	else if (closestPlayer->canShoot()) currentPlayer = closestPlayer;
+	else {
+		isGameFinished = true;
+		winner = closestPlayer;
+	}
+}
+
+void Scene::PrintWhosTurn()
+{
+	if (isGameFinished) {
+		std::cout << winner->getStringName() << " a gagne le round !\n";
+		SetWinnerScore();
+		PrintScore();
+		if (CheckWin()) {
+			std::cout << "Partie terminee !\n";
+			ResetPlayersScores();
+		}
+		ResetScene();
+	}
+	else {
+		std::cout << "C'est au tour de " + currentPlayer->getStringName() << " de jouer !\n";
+		std::cout << player1->getStringName() << " : " << player1->getShootLeft() << " tirs restants\n";
+		std::cout << player2->getStringName() << " : " << player2->getShootLeft() << " tirs restants\n";
+	}
+}
+
+void Scene::SetWinnerScore()
+{
+	if (cochonnet == nullptr) return;
+	
+	float minDist = std::numeric_limits<float>::max();
+
+	Ball* closestBall = nullptr;
+
+	std::vector<class Ball*> leftBalls = balls;
+
+	for (auto ball : leftBalls) {
+		if (ball == nullptr) continue;
+
+		float dist = (ball->position - cochonnet->position).GetLengthSqr();
+		if (dist < minDist) {
+			minDist = dist;
+			winner = ball->getPlayer();
+			closestBall = ball;
+		}
+	}
+	int score = winner->getScore();
+	score++;
+
+	leftBalls.erase(std::find(std::begin(leftBalls), std::end(leftBalls), closestBall));
+
+
+	while (!leftBalls.empty()) {
+		Player* closestPlayer = nullptr;
+		Ball* newClosestBall = nullptr;
+
+		for (auto ball : leftBalls) {
+			if (ball == nullptr) continue;
+
+			float dist = (ball->position - cochonnet->position).GetLengthSqr();
+			if (dist < minDist) {
+				minDist = dist;
+				closestPlayer = ball->getPlayer();
+				newClosestBall = ball;
+			}
+		}
+
+		if (closestPlayer != winner) leftBalls.clear();
+		else {
+			score++;
+			leftBalls.erase(std::find(std::begin(leftBalls), std::end(leftBalls), newClosestBall));
+		}
+	}
+
+	winner->setScore(score);
+}
+
+void Scene::PrintScore()
+{
+	std::cout << player1->getStringName() << " : " << player1->getScore() << " points\n";
+	std::cout << player2->getStringName() << " : " << player2->getScore() << " points\n";
+}
+
+bool Scene::CheckWin()
+{
+	if (player1 == nullptr) return false;
+	if (player2 == nullptr) return false;
+
+	if (player1->getScore() >= 13) return true;
+	else if (player2->getScore() >= 13) return true;
+	else { return false; }
+}
+
+void Scene::ResetPlayersScores()
+{
+	if (player1 == nullptr) return;
+	if (player2 == nullptr) return;
+
+	player1->setScore(0);
+	player2->setScore(0);
+}
+
+void Scene::ResetScene()
+{
+	player1->setShootLeft(3);
+	player2->setShootLeft(3);
+
+	currentPlayer = winner;
+
+	if (cochonnet != nullptr) delete cochonnet;
+	
+	for (auto ball : balls) {
+		if (ball != nullptr) delete ball;
+	}
+	balls.clear();
+
+	currentPlayer = nullptr;
+	winner = nullptr;
+	currentBall = nullptr;
+
+	canShoot = true;
+	firstShoot = true;
+	firstTurn = true;
+	isGameFinished = false;
 }
 
 float Scene::size = 0.4f;

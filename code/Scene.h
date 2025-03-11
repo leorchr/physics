@@ -4,8 +4,9 @@
 #pragma once
 #include "application.h"
 #include <vector>
+#include <chrono>
 
-#include "../Body.h"
+#include "../Ball.h"
 
 /*
 ====================================================
@@ -26,20 +27,37 @@ public:
 
 	std::vector<Body> bodies;
 	std::vector<Body> nextSpawnBodies;
+	bool IsShootFinished();
+	void CheckClosestPlayer();
+	void PrintWhosTurn();
 
+	void SetWinnerScore();
+	void PrintScore();
+	bool CheckWin();
+	void ResetPlayersScores();
+	void ResetScene();
+
+
+
+private:
 	Body earth;
 
 	class Player* player1;
 	class Player* player2;
 	class Player* currentPlayer;
+	class Player* winner;
 
-	class Body* cochonnet;
-	std::vector<class Body*> balls;
+	class Ball* cochonnet;
+	std::vector<class Ball*> balls;
 
-	class Body* currentBall = nullptr;
+	class Ball* currentBall = nullptr;
 
 	bool canShoot = true;
 	bool firstShoot = true;
+	bool firstTurn = true;
+	bool isGameFinished = false;
+
+	std::chrono::time_point<std::chrono::system_clock> start;
 
 	static float size;
 };

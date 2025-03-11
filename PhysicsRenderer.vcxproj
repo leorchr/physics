@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Ball.cpp" />
     <ClCompile Include="Body.cpp" />
     <ClCompile Include="Broadphase.cpp" />
     <ClCompile Include="code\application.cpp" />
@@ -45,6 +46,7 @@
     <ClCompile Include="Shape.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Ball.h" />
     <ClInclude Include="Body.h" />
     <ClInclude Include="Broadphase.h" />
     <ClInclude Include="code\application.h" />
