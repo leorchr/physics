@@ -59,10 +59,6 @@ void Scene::Update(const float dt_sec)
 
 		Vec3 impulseGravity = centerOfGravity * mass * dt_sec;
 		body.ApplyImpulseLinear(impulseGravity);
-
-		
-		body.linearVelocity = Vec3::Lerp(body.linearVelocity, Vec3(0, 0, 0), 0.01);
-		body.angularVelocity = Vec3::Lerp(body.angularVelocity, Vec3(0, 0, 0), 0.01);
 	}
 	// Broadphase
 	std::vector<CollisionPair> collisionPairs;
@@ -83,6 +79,10 @@ void Scene::Update(const float dt_sec)
 		{
 			contacts[numContacts] = contact;
 			++numContacts;
+			bodyA.linearVelocity = Vec3::Lerp(bodyA.linearVelocity, Vec3(0, 0, 0), 0.015);
+			bodyA.angularVelocity = Vec3::Lerp(bodyA.angularVelocity, Vec3(0, 0, 0), 0.015);
+			bodyB.linearVelocity = Vec3::Lerp(bodyB.linearVelocity, Vec3(0, 0, 0), 0.015);
+			bodyB.angularVelocity = Vec3::Lerp(bodyB.angularVelocity, Vec3(0, 0, 0), 0.015);
 		}
 	}
 	// Sort times of impact
@@ -234,7 +234,7 @@ void Scene::CheckClosestPlayer()
 			closestPlayer = ball->getPlayer();
 		}
 	}
-	std::cout << "Le joueur " + closestPlayer->getStringName() << " est le plus proche !\n";
+	std::cout << closestPlayer->getStringName() << " is the closest to the cochonnet.\n";
 
 	Player* nextPlayer = nullptr;
 
@@ -251,19 +251,23 @@ void Scene::CheckClosestPlayer()
 void Scene::PrintWhosTurn()
 {
 	if (isGameFinished) {
-		std::cout << winner->getStringName() << " a gagne le round !\n";
+		std::cout << winner->getStringName() << " win this round !\n";
+		std::cout << "===================================\n";
 		SetWinnerScore();
 		PrintScore();
 		if (CheckWin()) {
-			std::cout << "Partie terminee !\n";
+			std::cout << "End of the game !\n";
 			ResetPlayersScores();
 		}
 		ResetScene();
 	}
 	else {
-		std::cout << "C'est au tour de " + currentPlayer->getStringName() << " de jouer !\n";
-		std::cout << player1->getStringName() << " : " << player1->getShootLeft() << " tirs restants\n";
-		std::cout << player2->getStringName() << " : " << player2->getShootLeft() << " tirs restants\n";
+		std::cout << player1->getStringName() << " : " << player1->getShootLeft() << " shot" << (player1->getShootLeft() != 1 ? "s" : "") << " remaining\n";
+		std::cout << player2->getStringName() << " : " << player2->getShootLeft() << " shot" << (player2->getShootLeft() != 1 ? "s" : "") << " remaining\n";
+
+		std::cout << "It's " + currentPlayer->getStringName() << "'s turn.\n";
+		std::cout << "===================================\n";
+		turn++;
 	}
 }
 
@@ -362,6 +366,54 @@ void Scene::ResetScene()
 	firstShoot = true;
 	firstTurn = true;
 	isGameFinished = false;
+	turn = 0;
+}
+
+void Scene::SetColor(const std::string& color)
+{
+	std::cout << color;
+}
+
+void Scene::ExplainRules()
+{
+	SetColor("\033[1;34m");
+	std::cout << "Rules of Petanque\n";
+	SetColor("\033[0m");
+
+	std::cout << "\nPetanque is a very popular game in France. Here are the basic rules:\n\n";
+
+	SetColor("\033[1;33m");
+	std::cout << "1. Objective of the game:\n";
+	SetColor("\033[0m");
+	std::cout << "   The goal is to throw metal balls (called boules) as close as possible to a small target called the 'cochonnet'.\n\n";
+
+	SetColor("\033[1;33m");
+	std::cout << "2. Number of players:\n";
+	SetColor("\033[0m");
+	std::cout << "   Petanque is typically played with 2 players.\n\n";
+
+	SetColor("\033[1;33m");
+	std::cout << "3. Game procedure:\n";
+	SetColor("\033[0m");
+	std::cout << "   The game starts with a coin toss to decide who will throw the cochonnet.\nThe first player throws a boule to place it at a reasonable distance.\n";
+	std::cout << "   Then, players take turns throwing their boules to try to get closer to the cochonnet.\nThe player closest to the cochonnet has the advantage.\n\n";
+
+	SetColor("\033[1;33m");
+	std::cout << "4. Scoring:\n";
+	SetColor("\033[0m");
+	std::cout << "   Once all the boules are thrown, the team with the boule closest to the cochonnet scores a point.\nAny other boules closer than the opponent's also count.\n";
+	std::cout << "   The team that scores points then throws the cochonnet for the next round.\n\n";
+
+	SetColor("\033[1;33m");
+	std::cout << "5. End of the game:\n";
+	SetColor("\033[0m");
+	std::cout << "   The game continues until a team reaches a certain number of points, usually 13.\n\n";
+
+	SetColor("\033[1;32m");
+	std::cout << "Have fun and may the best team win!\n\n";
+	SetColor("\033[0m");
+	std::cout << "===================================\n";
+
 }
 
 float Scene::size = 0.4f;

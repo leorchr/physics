@@ -5,6 +5,7 @@
 #include "application.h"
 #include <vector>
 #include <chrono>
+#include <string>
 
 #include "Ball.h"
 
@@ -37,6 +38,9 @@ public:
 	void ResetPlayersScores();
 	void ResetScene();
 
+	void SetColor(const std::string& color);
+	void ExplainRules();
+
 
 
 private:
@@ -60,5 +64,7 @@ private:
 	std::chrono::time_point<std::chrono::system_clock> start;
 
 	static float size;
+
+	int turn = 1;
 };
 

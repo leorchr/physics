@@ -72,6 +72,7 @@ void Application::Initialize() {
 	InitializeVulkan();
 
 	scene = new Scene;
+	scene->ExplainRules();
 	scene->Initialize();
 	scene->Reset();
 
