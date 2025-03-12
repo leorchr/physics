@@ -1,5 +1,5 @@
 ﻿#include "Broadphase.h"
-#include "code/Math/Bounds.h"
+#include "Math/Bounds.h"
 #include "Shape.h"
 
 int CompareSAP(const void* a, const void* b) {

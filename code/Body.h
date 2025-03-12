@@ -1,7 +1,7 @@
 #pragma once
-#include "code/Math/Vector.h"
-#include "code/Renderer/model.h"
-#include "code/Math/Quat.h"
+#include "Math/Vector.h"
+#include "Renderer/model.h"
+#include "Math/Quat.h"
 
 class Body
 {

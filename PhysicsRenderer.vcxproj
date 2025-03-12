@@ -19,14 +19,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Ball.cpp" />
-    <ClCompile Include="Body.cpp" />
-    <ClCompile Include="Broadphase.cpp" />
     <ClCompile Include="code\application.cpp" />
+    <ClCompile Include="code\Ball.cpp" />
+    <ClCompile Include="code\Body.cpp" />
+    <ClCompile Include="code\Broadphase.cpp" />
+    <ClCompile Include="code\Contact.cpp" />
     <ClCompile Include="code\Fileio.cpp" />
+    <ClCompile Include="code\Intersections.cpp" />
     <ClCompile Include="code\main.cpp" />
     <ClCompile Include="code\Math\Bounds.cpp" />
     <ClCompile Include="code\Math\LCP.cpp" />
+    <ClCompile Include="code\Player.cpp" />
     <ClCompile Include="code\Renderer\Buffer.cpp" />
     <ClCompile Include="code\Renderer\Descriptor.cpp" />
     <ClCompile Include="code\Renderer\DeviceContext.cpp" />
@@ -40,22 +43,22 @@
     <ClCompile Include="code\Renderer\shader.cpp" />
     <ClCompile Include="code\Renderer\SwapChain.cpp" />
     <ClCompile Include="code\Scene.cpp" />
-    <ClCompile Include="Contact.cpp" />
-    <ClCompile Include="Intersections.cpp" />
-    <ClCompile Include="Player.cpp" />
-    <ClCompile Include="Shape.cpp" />
+    <ClCompile Include="code\Shape.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Ball.h" />
-    <ClInclude Include="Body.h" />
-    <ClInclude Include="Broadphase.h" />
     <ClInclude Include="code\application.h" />
+    <ClInclude Include="code\Ball.h" />
+    <ClInclude Include="code\Body.h" />
+    <ClInclude Include="code\Broadphase.h" />
+    <ClInclude Include="code\Contact.h" />
     <ClInclude Include="code\Fileio.h" />
+    <ClInclude Include="code\Intersections.h" />
     <ClInclude Include="code\Math\Bounds.h" />
     <ClInclude Include="code\Math\LCP.h" />
     <ClInclude Include="code\Math\Matrix.h" />
     <ClInclude Include="code\Math\Quat.h" />
     <ClInclude Include="code\Math\Vector.h" />
+    <ClInclude Include="code\Player.h" />
     <ClInclude Include="code\Renderer\Buffer.h" />
     <ClInclude Include="code\Renderer\Descriptor.h" />
     <ClInclude Include="code\Renderer\DeviceContext.h" />
@@ -69,10 +72,7 @@
     <ClInclude Include="code\Renderer\shader.h" />
     <ClInclude Include="code\Renderer\SwapChain.h" />
     <ClInclude Include="code\Scene.h" />
-    <ClInclude Include="Contact.h" />
-    <ClInclude Include="Intersections.h" />
-    <ClInclude Include="Player.h" />
-    <ClInclude Include="Shape.h" />
+    <ClInclude Include="code\Shape.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

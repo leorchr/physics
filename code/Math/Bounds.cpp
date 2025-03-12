@@ -1,5 +1,5 @@
 #include "Bounds.h"
-#include "../../Body.h"
+#include "../Body.h"
 
 const Bounds & Bounds::operator = ( const Bounds & rhs ) {
 	mins = rhs.mins;

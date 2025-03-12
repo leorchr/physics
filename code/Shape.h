@@ -1,8 +1,8 @@
 #pragma once
-#include "code/Math/Bounds.h"
-#include "code/Math/Matrix.h"
-#include "code/Math/Quat.h"
-#include "code/Math/Vector.h"
+#include "Math/Bounds.h"
+#include "Math/Matrix.h"
+#include "Math/Quat.h"
+#include "Math/Vector.h"
 
 class Shape {
 public:

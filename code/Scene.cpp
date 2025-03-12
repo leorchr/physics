@@ -1,8 +1,8 @@
 #include "Scene.h"
-#include "../Shape.h"
-#include "../Intersections.h"
-#include "../Broadphase.h"
-#include "../Player.h"
+#include "Shape.h"
+#include "Intersections.h"
+#include "Broadphase.h"
+#include "Player.h"
 
 #include <algorithm>
 #include <iostream>

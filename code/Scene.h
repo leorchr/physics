@@ -6,7 +6,7 @@
 #include <vector>
 #include <chrono>
 
-#include "../Ball.h"
+#include "Ball.h"
 
 /*
 ====================================================

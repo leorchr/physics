@@ -12,8 +12,8 @@
 
 #include "Math/Vector.h"
 #include "Math/Quat.h"
-#include "../Shape.h"
-#include "../Body.h"
+#include "Shape.h"
+#include "Body.h"
 
 #include "Renderer/DeviceContext.h"
 #include "Renderer/model.h"

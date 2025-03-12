@@ -1,5 +1,5 @@
 ﻿#include "Shape.h"
-#include "code/Math/Matrix.h"
+#include "Math/Matrix.h"
 
 Mat3 ShapeSphere::InertiaTensor() const
 {
