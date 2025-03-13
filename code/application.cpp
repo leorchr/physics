@@ -91,7 +91,7 @@ void Application::Initialize() {
 	m_cameraRadius = 30.0f;
 	m_cameraFocusPoint = Vec3( 0, 0, 3 );
 
-	m_isPaused = true;
+	m_isPaused = false;
 	m_stepFrame = false;
 }
 
@@ -383,11 +383,19 @@ void Application::MouseMoved( float x, float y ) {
 	m_cameraPositionTheta += ds.y * -sensitivity;
 	m_cameraPositionPhi += ds.x * -sensitivity;
 
+	
 	if ( m_cameraPositionTheta < 0.14f ) {
 		m_cameraPositionTheta = 0.14f;
 	}
-	if ( m_cameraPositionTheta > 3.0f ) {
-		m_cameraPositionTheta = 3.0f;
+	if ( m_cameraPositionTheta > 1.7f ) {
+		m_cameraPositionTheta = 1.7f;
+	}
+
+	if ( m_cameraPositionPhi < -1.57f ) {
+		m_cameraPositionPhi = -1.57f;
+	}
+	if ( m_cameraPositionPhi > 1.57f ) {
+		m_cameraPositionPhi = 1.57f;
 	}
 }
 
@@ -407,10 +415,10 @@ Application::MouseScrolled
 ====================================================
 */
 void Application::MouseScrolled( float z ) {
-	m_cameraRadius -= z;
-	if ( m_cameraRadius < 0.5f ) {
-		m_cameraRadius = 0.5f;
-	}
+	// m_cameraRadius -= z;
+	// if ( m_cameraRadius < 0.5f ) {
+	// 	m_cameraRadius = 0.5f;
+	// }
 }
 
 void Application::OnKeyboard( GLFWwindow * window, int key, int scancode, int action, int modifiers ) {
@@ -440,15 +448,15 @@ void Application::MouseButton(int button, int action, int mods)
 }
 
 void Application::Keyboard( int key, int scancode, int action, int modifiers ) {
-	if ( GLFW_KEY_R == key && GLFW_RELEASE == action ) {
-		scene->Reset();
-	}
-	if ( GLFW_KEY_T == key && GLFW_RELEASE == action ) {
-		m_isPaused = !m_isPaused;
-	}
-	if ( GLFW_KEY_Y == key && ( GLFW_PRESS == action || GLFW_REPEAT == action ) ) {
-		m_stepFrame = m_isPaused && !m_stepFrame;
-	}
+//	if ( GLFW_KEY_R == key && GLFW_RELEASE == action ) {
+//		scene->Reset();
+//	}
+//	if ( GLFW_KEY_T == key && GLFW_RELEASE == action ) {
+//		m_isPaused = !m_isPaused;
+//	}
+//	if ( GLFW_KEY_Y == key && ( GLFW_PRESS == action || GLFW_REPEAT == action ) ) {
+//		m_stepFrame = m_isPaused && !m_stepFrame;
+//	}
 }
 
 void Application::MainLoop() {

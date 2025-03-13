@@ -27,7 +27,7 @@ Application
 */
 class Application {
 public:
-	Application() : m_isPaused( true ), m_stepFrame( false ) {}
+	Application() : m_isPaused( false ), m_stepFrame( false ) {}
 	~Application();
 
 	void Initialize();

@@ -59,6 +59,9 @@ void Scene::Update(const float dt_sec)
 
 		Vec3 impulseGravity = centerOfGravity * mass * dt_sec;
 		body.ApplyImpulseLinear(impulseGravity);
+
+		body.linearVelocity = Vec3::Lerp(body.linearVelocity, Vec3(0, 0, 0), 0.01f);
+		body.angularVelocity = Vec3::Lerp(body.angularVelocity, Vec3(0, 0, 0), 0.01f);
 	}
 	// Broadphase
 	std::vector<CollisionPair> collisionPairs;
@@ -168,22 +171,23 @@ void Scene::SpawnBall(const Vec3& cameraPos, const Vec3& cameraFocusPoint, float
 	Type type = Type::None;
 	float radius = 0.0f;
 	if (firstShoot) {
-		radius = 0.8f;
+		radius = 0.6f;
 		type = Type::Cochonnet;
 	}
 	else {
 		currentPlayer->shoot();
-		radius = 1.5f;
+		radius = 1.2f;
 		type = Type::Boule;
 	}
 
 	start = std::chrono::system_clock::now();
 	currentBall = new Ball(type, currentPlayer);
 	currentBall->position = cameraPos + dir * 20;
-	currentBall->linearVelocity = dir * 75 * std::min(std::max(0.5f,strength) , 2.0f);
+	dir.z += 0.1f;
+	currentBall->linearVelocity = dir * 35 * std::min(std::max(0.8f,strength) , 1.5f);
 	currentBall->orientation = Quat(0,0,0,1);
 	currentBall->shape = new ShapeSphere(radius);
-	currentBall->inverseMass = 1.0f;
+	currentBall->inverseMass = 3.0f;
 	currentBall->elasticity = 0.1f;
 	currentBall->friction = 0.5f;
 
@@ -234,7 +238,7 @@ void Scene::CheckClosestPlayer()
 			closestPlayer = ball->getPlayer();
 		}
 	}
-	std::cout << closestPlayer->getStringName() << " is the closest to the cochonnet.\n";
+	std::cout << closestPlayer->getStringName() << " is the closest to the cochonnet.\n" << std::flush;
 
 	Player* nextPlayer = nullptr;
 
@@ -266,7 +270,7 @@ void Scene::PrintWhosTurn()
 		std::cout << player2->getStringName() << " : " << player2->getShootLeft() << " shot" << (player2->getShootLeft() != 1 ? "s" : "") << " remaining\n";
 
 		std::cout << "It's " + currentPlayer->getStringName() << "'s turn.\n";
-		std::cout << "===================================\n";
+		std::cout << "===================================\n" << std::flush;
 		turn++;
 	}
 }
@@ -327,7 +331,7 @@ void Scene::SetWinnerScore()
 void Scene::PrintScore()
 {
 	std::cout << player1->getStringName() << " : " << player1->getScore() << " points\n";
-	std::cout << player2->getStringName() << " : " << player2->getScore() << " points\n";
+	std::cout << player2->getStringName() << " : " << player2->getScore() << " points\n" << std::flush;
 }
 
 bool Scene::CheckWin()
@@ -376,6 +380,7 @@ void Scene::SetColor(const std::string& color)
 
 void Scene::ExplainRules()
 {
+	std::cout << std::flush;
 	SetColor("\033[1;34m");
 	std::cout << "Rules of Petanque\n";
 	SetColor("\033[0m");
@@ -412,8 +417,7 @@ void Scene::ExplainRules()
 	SetColor("\033[1;32m");
 	std::cout << "Have fun and may the best team win!\n\n";
 	SetColor("\033[0m");
-	std::cout << "===================================\n";
-
+	std::cout << "===================================\n" << std::flush;
 }
 
 float Scene::size = 0.4f;
