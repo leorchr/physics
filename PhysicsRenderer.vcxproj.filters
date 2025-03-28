@@ -72,6 +72,12 @@
     <ClCompile Include="Body.cpp">
       <Filter>code\Physics</Filter>
     </ClCompile>
+    <ClCompile Include="Broadphase.cpp" />
+    <ClCompile Include="Contact.cpp" />
+    <ClCompile Include="Intersections.cpp" />
+    <ClCompile Include="Shape.cpp" />
+    <ClCompile Include="ShapeUtils.cpp" />
+    <ClCompile Include="GJK.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\application.h">
@@ -140,5 +146,10 @@
     <ClInclude Include="Shape.h">
       <Filter>code\Physics</Filter>
     </ClInclude>
+    <ClInclude Include="Broadphase.h" />
+    <ClInclude Include="Contact.h" />
+    <ClInclude Include="Intersections.h" />
+    <ClInclude Include="ShapeUtils.h" />
+    <ClInclude Include="GJK.h" />
   </ItemGroup>
 </Project>

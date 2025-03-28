@@ -408,7 +408,6 @@ bool Model::BuildFromShape(const Shape* shape) {
 		}
 	}
 
-	/*
 	else if (shape->GetType() == Shape::ShapeType::SHAPE_BOX) {
 		const ShapeBox* shapeBox = (const ShapeBox*)shape;
 
@@ -416,8 +415,8 @@ bool Model::BuildFromShape(const Shape* shape) {
 		m_indices.clear();
 
 		FillCubeTessellated(*this, 0);
-		Vec3 halfdim = (shapeBox->m_bounds.maxs - shapeBox->m_bounds.mins) * 0.5f;
-		Vec3 center = (shapeBox->m_bounds.maxs + shapeBox->m_bounds.mins) * 0.5f;
+		Vec3 halfdim = (shapeBox->bounds.maxs - shapeBox->bounds.mins) * 0.5f;
+		Vec3 center = (shapeBox->bounds.maxs + shapeBox->bounds.mins) * 0.5f;
 		for (int v = 0; v < m_vertices.size(); v++) {
 			for (int i = 0; i < 3; i++) {
 				m_vertices[v].xyz[i] *= halfdim[i];
@@ -433,8 +432,8 @@ bool Model::BuildFromShape(const Shape* shape) {
 
 		// Build the connected convex hull from the points
 		std::vector< Vec3 > hullPts;
-		std::vector< tri_t > hullTris;
-		BuildConvexHull(shapeConvex->m_points, hullPts, hullTris);
+		std::vector< Tri > hullTris;
+		BuildConvexHull(shapeConvex->points, hullPts, hullTris);
 
 		// Calculate smoothed normals
 		std::vector< Vec3 > normals;
@@ -443,7 +442,7 @@ bool Model::BuildFromShape(const Shape* shape) {
 			Vec3 norm(0.0f);
 
 			for (int t = 0; t < hullTris.size(); t++) {
-				const tri_t& tri = hullTris[t];
+				const Tri& tri = hullTris[t];
 				if (i != tri.a && i != tri.b && i != tri.c) {
 					continue;
 				}
@@ -488,7 +487,6 @@ bool Model::BuildFromShape(const Shape* shape) {
 			m_indices.push_back(hullTris[i].c);
 		}
 	}
-		*/
 	return true;
 
 	}

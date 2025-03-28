@@ -67,14 +67,13 @@ Application::Initialize
 ====================================================
 */
 void Application::Initialize() {
-	//FillDiamond();
+	FillDiamond();
 
 	InitializeGLFW();
 	InitializeVulkan();
 
 	scene = new Scene;
 	scene->Initialize();
-	scene->Reset();
 
 	m_models.reserve( scene->bodies.size() );
 	for ( int i = 0; i < scene->bodies.size(); i++ ) {
